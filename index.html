@@ -9,11 +9,28 @@
     <meta name="description" content="The Tic Tac Toe">
     <meta name="author" content="Mael FOSSO">
 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> -->
     <link href="css/style.css" rel="stylesheet" media="screen">
   </head>
   <body>
-    <h1>Tic Tac Toe</h1>
+    
+    <div id="game">
+      <h1>Tic Tac Toe</h1>
+
+      <div id="players">
+        <div id="player-1"><strong>Player 1:</strong> O</div>
+        <div id="player-2"><strong>Player 2:</strong> X</div>
+        <div><strong>Current Player:</strong> <span id="current">Player 1</span></div>
+      </div>
+      <div id="board">
+        <div class="square"></div><div class="square"></div><div class="square"></div>
+        <div class="square"></div><div class="square"></div><div class="square"></div>
+        <div class="square"></div><div class="square"></div><div class="square"></div>
+      </div>
+      <div id="result">
+        Player 1 won !!!!
+      </div>
+    </div>
     <script src="js/app.js"></script>
   </body>
 </html>

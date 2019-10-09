@@ -1,0 +1,39 @@
+#game {
+  width: 50%;
+  margin: auto;
+  /* background-color: red; */
+}
+
+#game h1 {
+  text-align: center;
+}
+
+#players {
+  display: flex;
+  margin: auto;
+  padding: 1em 0;
+  justify-content: space-between;
+  width: 40%;
+}
+
+#board {
+  display: flex;
+  width: 45%;
+  flex-wrap: wrap;
+  margin: auto;
+}
+
+#board .square {
+  width: 32.8%;
+  height: 8.45em;
+  border: 1px solid black;
+}
+
+#result {
+  display: flex;
+  justify-content: center;
+  font-size: 2em;
+  font-weight: bold;
+  text-decoration: blink;
+  padding: 1em 0;
+}
