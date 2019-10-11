@@ -195,6 +195,7 @@ const ui = (() => {
 
           } else if (state == 2) {
             printMessage("It's a DRAW");
+            toggleBoard();
           } else {
             printMessage("");
             game.switchPlayers();
