@@ -9,8 +9,7 @@ const board = (() => {
   let cells = Array(9).fill(null);
 
   const isValidPosition = (position) => {
-    if ([0, 1, 2, 3, 4, 5, 6, 7, 8].includes(position) && 
-        cells[position] != null) {
+    if ([0, 1, 2, 3, 4, 5, 6, 7, 8].includes(position) && !cells[position]) {
       return true;
     } else {
       return false;
@@ -30,7 +29,8 @@ const board = (() => {
 
     return rows.some((row) => {
       return row.every((r, ix, arr) => {
-        return cells[r] == cells[arr[0]];
+
+        return (cells[r] != undefined) && (cells[r] === cells[arr[0]]);
       });
     });
   }
@@ -44,7 +44,7 @@ const board = (() => {
 
     return cols.some((col) => {
       return col.every((c, ix, arr) => {
-        return cells[c] == cells[arr[0]];
+        return (cells[c] != undefined) && (cells[c] == cells[arr[0]]);
       });
     });
   }
@@ -55,9 +55,9 @@ const board = (() => {
       [2, 4, 6]
     ];
 
-    diags.some((diag) => {
+    return diags.some((diag) => {
       return diag.every((d, ix, arr) => {
-        return cells[d] == cells[arr[0]];
+        return (cells[d] != undefined) && (cells[d] == cells[arr[0]]);
       });
     });
   }
@@ -70,15 +70,17 @@ const board = (() => {
     cells = Array(9).fill(null);
   }
 
-
+  const getCells = () => cells;
 
   return {
+    isValidPosition,
     updateCell,
     wonDiagonally,
     wonHorizontally,
     wonVertically,
     isDraw,
-    reset
+    reset,
+    getCells
   }
 })();
 
@@ -86,9 +88,11 @@ const game = (() => {
   let players = [
     Player('O'), Player('X')
   ];
-  let currentPlayer;
+  let currentPlayer = players[Math.floor(Math.random() * players.length)];
 
   const win = () => {
+    console.log(board.wonHorizontally(), board.wonVertically(), board.wonDiagonally());
+
     return board.wonHorizontally() || 
       board.wonVertically() ||
       board.wonDiagonally()
@@ -96,6 +100,7 @@ const game = (() => {
   }
 
   const draw = () => {
+
     return board.isDraw();
   }
 
@@ -109,13 +114,13 @@ const game = (() => {
     }
   }
 
-  const switching = () => {
+  const switchPlayers = () => {
     currentPlayer = currentPlayer == players[0] ? players[1] : players[0];
   }
 
   const play = (position) => {
     if (board.isValidPosition(position)) {
-      board.updateCell(currentPlayer.token, position);
+      board.updateCell(currentPlayer.token, position); // 
 
       return true;
     } else {
@@ -123,47 +128,113 @@ const game = (() => {
     }
   }
 
+  const getBoard = () => board;
+
+  const getCurrentPlayer = () => currentPlayer;
+
+  const reset = () => {
+    switchPlayers();
+    board.reset();
+  }
+
   return {
+    getBoard,
+    getCurrentPlayer,
     win,
     draw,
     state,
-    switching,
-    play
+    switchPlayers,
+    play,
+    reset
   };
 })();
 
-// a player play in cell 
-// we check winning or draw
-//   * winning 
-//     - horizontal 
-//     - vertical 
-//     - diagonal
-//   * draw 
-//     - all the cells are fill 
+const ui = (() => {
 
-// we switch the players 
+  const render = () => {
+    
+    let board = game.getBoard();
+    
+    let divBoard = document.getElementById("board");
+    while (divBoard.firstChild) divBoard.removeChild(divBoard.firstChild);
 
-// Game 
-//   - players 
-//   - board 
-//   - current player 
-//   * current player plays in a position 
-//     * check if it's a valid position
-//     * check if the board at that position is empty
-//     * update cells board for that position 
-//     * 
-//   * check win / draw 
-//     * check if board win in horizontal
-//     * check if board win in vertical
-//     * check if board win in diagonal
-//     * check if all the cells board are filled 
-//   * switch players 
-//   * restart the game 
-//     * empty all cells board 
-// GameBoard 
-//   - cells 
-//   * update cell with token 
-//   * win horizontal
-//   * win vertical
-//   * win diagonal
+    for (let i=0; i < board.getCells().length; i++) {
+      var div = document.createElement("div");
+      div.textContent = board.getCells()[i];
+      div.setAttribute('class', 'square');
+      div.setAttribute('data-cell-idx', i);
+      
+      divBoard.appendChild(div);
+    }
+  }
 
+  const printMessage = (message) => {
+    document.getElementById("message").textContent = message;
+  }
+
+  const addListeners = () => {
+    let cells = document.querySelectorAll("div.square");
+
+    for (let i=0; i < cells.length; i++) {
+      let cell = cells[i];
+
+      cell.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        let cellIdx = Number(cell.dataset.cellIdx);
+        let isOK = game.play(cellIdx);
+
+        if (!isOK) {
+          printMessage("Invalid move");
+        } else {
+
+          let state = game.state();
+          if (state == 1) {
+            printMessage(`The Player ${game.getCurrentPlayer().token} WON !`);
+            toggleBoard();
+
+          } else if (state == 2) {
+            printMessage("It's a DRAW");
+          } else {
+            printMessage("");
+            game.switchPlayers();
+          }
+        }
+
+        display();
+      });
+    }
+  }
+
+  updateCurrentPlayer = () => {
+    let cp = game.getCurrentPlayer();
+    document.getElementById("current").textContent = `Player ${cp.token == 'O' ? 1 : 2}`;
+  }
+
+  toggleBoard = () => {
+    document.getElementById("board").classList.toggle('disabled');
+    document.getElementById("restart-game").classList.toggle('hidden');
+
+    document.getElementById("restart-btn").addEventListener("click", function(e) {
+      e.preventDefault();
+
+      game.reset();
+      display();
+      toggleBoard();
+      printMessage("");
+      updateCurrentPlayer();
+    });
+  }
+
+  const display = () => {
+    render();
+    updateCurrentPlayer();
+    addListeners();
+  }
+
+  return {
+    display
+  }
+})();
+
+ui.display();
